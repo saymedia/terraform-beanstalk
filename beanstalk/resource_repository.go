@@ -130,7 +130,7 @@ func ReadRepository(d *schema.ResourceData, meta interface{}) error {
 
 	res := &RepositoryWrap{}
 
-	err := client.Get([]string{"repositories", d.Id()}, res)
+	err := client.Get([]string{"repositories", d.Id()}, nil, res)
 	if err != nil {
 		if _, ok := err.(*NotFoundError); ok {
 			d.SetId("")
@@ -157,7 +157,7 @@ func ReadRepositoryCodeReview(d *schema.ResourceData, meta interface{}) error {
 
 	res := &RepositoryCodeReview{}
 
-	err := client.Get([]string{d.Id(), "code_reviews", "settings"}, res)
+	err := client.Get([]string{d.Id(), "code_reviews", "settings"}, nil, res)
 	if err != nil {
 		return err
 	}

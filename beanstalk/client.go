@@ -51,6 +51,7 @@ type request struct {
 func (c *Client) rawRequest(req *request) ([]byte, error) {
 	httpReq := req.MakeHTTPRequest(c)
 	log.Printf("Beanstalk %v request to %v", httpReq.Method, httpReq.URL)
+	log.Printf("Request body is %v", string(req.BodyBytes))
 	res, err := c.httpClient.Do(httpReq)
 	if err != nil {
 		return nil, err
@@ -77,7 +78,7 @@ func (c *Client) rawRequest(req *request) ([]byte, error) {
 	return resBodyBytes, nil
 }
 
-func (c *Client) jsonRequest(method string, pathParts []string, reqBody interface{}, result interface{}) error {
+func (c *Client) jsonRequest(method string, pathParts []string, queryArgs map[string]string, reqBody interface{}, result interface{}) error {
 
 	var err error
 	var reqBodyBytes []byte
@@ -89,7 +90,7 @@ func (c *Client) jsonRequest(method string, pathParts []string, reqBody interfac
 	req := &request{
 		Method: method,
 		PathParts: pathParts,
-		QueryArgs: nil,
+		QueryArgs: queryArgs,
 		BodyBytes: reqBodyBytes,
 		Headers: map[string]string{},
 	}
@@ -117,20 +118,20 @@ func (c *Client) jsonRequest(method string, pathParts []string, reqBody interfac
 	return nil
 }
 
-func (c *Client) Get(pathParts []string, result interface{}) error {
-	return c.jsonRequest("GET", pathParts, nil, result)
+func (c *Client) Get(pathParts []string, queryArgs map[string]string, result interface{}) error {
+	return c.jsonRequest("GET", pathParts, queryArgs, nil, result)
 }
 
 func (c *Client) Post(pathParts []string, reqBody interface{}, result interface{}) error {
-	return c.jsonRequest("POST", pathParts, reqBody, result)
+	return c.jsonRequest("POST", pathParts, nil, reqBody, result)
 }
 
 func (c *Client) Put(pathParts []string, reqBody interface{}, result interface{}) error {
-	return c.jsonRequest("PUT", pathParts, reqBody, result)
+	return c.jsonRequest("PUT", pathParts, nil, reqBody, result)
 }
 
 func (c *Client) Delete(pathParts []string) error {
-	return c.jsonRequest("PUT", pathParts, nil, nil)
+	return c.jsonRequest("DELETE", pathParts, nil, nil, nil)
 }
 
 func (r *request) MakeHTTPRequest(client *Client) *http.Request {
