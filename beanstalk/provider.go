@@ -10,6 +10,7 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"beanstalk_repository": resourceRepository(),
 			"beanstalk_user":       resourceUser(),
+			"beanstalk_team":       resourceTeam(),
 		},
 
 		Schema: map[string]*schema.Schema{
