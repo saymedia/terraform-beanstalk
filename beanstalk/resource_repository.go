@@ -2,7 +2,6 @@ package beanstalk
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -50,42 +49,6 @@ func resourceRepository() *schema.Resource {
 				Optional: true,
 				Default:  false,
 				ForceNew: true,
-			},
-
-			"code_review_unanimous_approval": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"code_review_auto_reopen": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"code_review_default_assignee_user_ids": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeInt,
-				},
-			},
-
-			"code_review_default_watching_user_ids": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeInt,
-				},
-			},
-
-			"code_review_default_watching_team_ids": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeInt,
-				},
 			},
 
 			"id": &schema.Schema{
@@ -149,43 +112,6 @@ func ReadRepository(d *schema.ResourceData, meta interface{}) error {
 	d.Set("id", res.Repository.ID)
 	d.Set("url", res.Repository.URL)
 
-	return ReadRepositoryCodeReview(d, meta)
-}
-
-func ReadRepositoryCodeReview(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*Client)
-
-	res := &RepositoryCodeReview{}
-
-	err := client.Get([]string{d.Id(), "code_reviews", "settings"}, nil, res)
-	if err != nil {
-		return err
-	}
-
-	d.Set("code_review_unanimous_approval", res.UnanimousApproval)
-	d.Set("code_review_auto_reopen", res.AutoReopen)
-
-	assigneeUserIds := make([]int, len(res.DefaultAssignees))
-	for i, item := range res.DefaultAssignees {
-		assigneeUserIds[i] = item.ID
-	}
-	d.Set("code_review_default_assignee_user_ids", assigneeUserIds)
-
-	watcherUserIds := make([]int, 0, len(res.DefaultWatchers))
-	watcherTeamIds := make([]int, 0, len(res.DefaultWatchers))
-	for _, item := range res.DefaultWatchers {
-		switch item.Type {
-		case "User":
-			watcherUserIds = append(watcherUserIds, item.ID)
-		case "Team":
-			watcherTeamIds = append(watcherTeamIds, item.ID)
-		default:
-			log.Printf("Ignored watcher of unknown type %v", item.Type)
-		}
-	}
-	d.Set("code_review_default_watching_user_ids", watcherUserIds)
-	d.Set("code_review_default_watching_team_ids", watcherTeamIds)
-
 	return nil
 }
 
@@ -221,16 +147,6 @@ func UpdateRepository(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("name")
 	}
 
-	err := UpdateRepositoryCodeReview(d, meta)
-	if err != nil {
-		return err
-	}
-	d.SetPartial("code_review_unanimous_approval")
-	d.SetPartial("code_review_auto_reopen")
-	d.SetPartial("code_review_default_assignee_user_ids")
-	d.SetPartial("code_review_default_watching_user_ids")
-	d.SetPartial("code_review_default_watching_team_ids")
-
 	req := &RepositoryWrap{
 		Repository: Repository{
 			Title:            d.Get("title").(string),
@@ -239,7 +155,7 @@ func UpdateRepository(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 
-	err = client.Put([]string{"repositories", d.Id()}, req, nil)
+	err := client.Put([]string{"repositories", d.Id()}, req, nil)
 	if err != nil {
 		return err
 	}
@@ -247,32 +163,6 @@ func UpdateRepository(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(false)
 
 	return ReadRepository(d, meta)
-}
-
-func UpdateRepositoryCodeReview(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*Client)
-
-	sliceToInts := func(in []interface{}) []int {
-		ret := make([]int, len(in))
-		for i, si := range in {
-			ret[i] = si.(int)
-		}
-		return ret
-	}
-
-	assigneeUserIds := sliceToInts(d.Get("code_review_default_assignee_user_ids").([]interface{}))
-	watcherUserIds := sliceToInts(d.Get("code_review_default_watching_user_ids").([]interface{}))
-	watcherTeamIds := sliceToInts(d.Get("code_review_default_watching_team_ids").([]interface{}))
-
-	req := &RepositoryCodeReview{
-		UnanimousApproval:      d.Get("code_review_unanimous_approval").(bool),
-		AutoReopen:             d.Get("code_review_auto_reopen").(bool),
-		DefaultAssigneeUserIDs: assigneeUserIds,
-		DefaultWatcherUserIDs:  watcherUserIds,
-		DefaultWatcherTeamIDs:  watcherTeamIds,
-	}
-
-	return client.Put([]string{d.Id(), "code_reviews", "settings"}, req, nil)
 }
 
 func DeleteRepository(d *schema.ResourceData, meta interface{}) error {
@@ -293,22 +183,4 @@ type Repository struct {
 
 type RepositoryWrap struct {
 	Repository Repository `json:"repository"`
-}
-
-type RepositoryCodeReview struct {
-	UnanimousApproval      bool                          `json:"unanimous_approval"`
-	AutoReopen             bool                          `json:"auto_reopen"`
-	DefaultWatchers        []RepositoryCodeReviewWatcher `json:"default_watchers,omitempty"`
-	DefaultAssignees       []RepositoryCodeReviewWatcher `json:"default_assignees,omitempty"`
-	DefaultAssigneeUserIDs []int                         `json:"default_assignees"`
-	DefaultWatcherUserIDs  []int                         `json:"default_watchers_user_ids"`
-	DefaultWatcherTeamIDs  []int                         `json:"default_watchers_team_ids"`
-}
-
-type RepositoryCodeReviewWatcher struct {
-	ID       int    `json:"id"`
-	Type     string `json:"type"`
-	Name     string `json:"name"`
-	Username string `json:"login"`
-	Email    string `json:"email"`
 }

@@ -8,9 +8,10 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
-			"beanstalk_repository": resourceRepository(),
-			"beanstalk_user":       resourceUser(),
-			"beanstalk_team":       resourceTeam(),
+			"beanstalk_repository":                      resourceRepository(),
+			"beanstalk_repository_code_review_settings": resourceRepositoryCodeReviewSettings(),
+			"beanstalk_user":                            resourceUser(),
+			"beanstalk_team":                            resourceTeam(),
 		},
 
 		Schema: map[string]*schema.Schema{
