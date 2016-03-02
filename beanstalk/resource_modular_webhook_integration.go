@@ -6,7 +6,7 @@ import (
 
 func resourceModularWebhookIntegration() *schema.Resource {
 	integrationType := &integrationType{
-		Name: "ModularWebhooksIntegration",
+		Name: "ModularWebHooksIntegration",
 		Attributes: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
