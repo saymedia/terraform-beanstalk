@@ -9,8 +9,9 @@ func resourceHipchatIntegration() *schema.Resource {
 		Name: "HipchatIntegration",
 		Attributes: map[string]*schema.Schema{
 			"service_access_token": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HIPCHAT_API_TOKEN", nil),
 			},
 			"service_room_name": &schema.Schema{
 				Type:     schema.TypeString,
