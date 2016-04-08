@@ -41,10 +41,10 @@ func NewClient(config *ClientConfig) (*Client, error) {
 }
 
 type request struct {
-	Method string
+	Method    string
 	PathParts []string
 	QueryArgs map[string]string
-	Headers map[string]string
+	Headers   map[string]string
 	BodyBytes []byte
 }
 
@@ -88,11 +88,11 @@ func (c *Client) jsonRequest(method string, pathParts []string, queryArgs map[st
 	}
 
 	req := &request{
-		Method: method,
+		Method:    method,
 		PathParts: pathParts,
 		QueryArgs: queryArgs,
 		BodyBytes: reqBodyBytes,
-		Headers: map[string]string{},
+		Headers:   map[string]string{},
 	}
 
 	if reqBody != nil {
@@ -169,7 +169,7 @@ func (r *request) MakeHTTPRequest(client *Client) *http.Request {
 	return req
 }
 
-type NotFoundError struct {}
+type NotFoundError struct{}
 
 func (err NotFoundError) Error() string {
 	return "not found"

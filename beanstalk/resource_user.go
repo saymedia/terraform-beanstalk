@@ -148,11 +148,11 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 
 	userWrap := &UserWrap{
 		User: User{
-			Username: d.Get("username").(string),
-			Email: d.Get("email").(string),
-			Name: d.Get("name").(string),
+			Username:       d.Get("username").(string),
+			Email:          d.Get("email").(string),
+			Name:           d.Get("name").(string),
 			IsAccountAdmin: d.Get("account_admin").(bool),
-			Timezone: d.Get("timezone").(string),
+			Timezone:       d.Get("timezone").(string),
 		},
 	}
 

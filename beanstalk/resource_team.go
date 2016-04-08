@@ -159,8 +159,8 @@ func teamFromResourceData(d *schema.ResourceData) *TeamWrite {
 		repositoryId := permissionsMap["repository_id"].(int)
 
 		team.Permissions[strconv.Itoa(repositoryId)] = TeamRepositoryPermissionsWrite{
-			CanWrite: permissionsMap["can_write"].(bool),
-			CanDeploy: permissionsMap["can_deploy"].(bool),
+			CanWrite:                permissionsMap["can_write"].(bool),
+			CanDeploy:               permissionsMap["can_deploy"].(bool),
 			CanConfigureDeployments: permissionsMap["can_configure_deployments"].(bool),
 		}
 	}
