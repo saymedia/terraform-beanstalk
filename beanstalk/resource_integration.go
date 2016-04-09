@@ -7,8 +7,9 @@ import (
 )
 
 type integrationType struct {
-	Name       string
-	Attributes map[string]*schema.Schema
+	Name                string
+	Attributes          map[string]*schema.Schema
+	WriteOnlyAttributes []string
 }
 
 // The Beanstalk API has "integration" as a concept, but it is an abstract
@@ -126,7 +127,16 @@ func (it *integrationType) prepareForJSON(d *schema.ResourceData) map[string]int
 
 func (it *integrationType) refreshFromJSON(d *schema.ResourceData, data map[string]interface{}) {
 	for k, s := range it.Attributes {
-		d.Set(k, decodeFromJSON(s, data[k]))
+		wo := false
+		for _, a := range it.WriteOnlyAttributes {
+			if k == a {
+				wo = true
+				break
+			}
+		}
+		if !wo {
+			d.Set(k, decodeFromJSON(s, data[k]))
+		}
 	}
 }
 

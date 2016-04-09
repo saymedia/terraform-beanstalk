@@ -39,6 +39,7 @@ func resourceHipchatIntegration() *schema.Resource {
 				Default:  false,
 			},
 		},
+		WriteOnlyAttributes: []string{"service_access_token"},
 	}
 
 	return integrationType.resource()
