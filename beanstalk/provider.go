@@ -9,6 +9,7 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
 			"beanstalk_hipchat_integration":             resourceHipchatIntegration(),
+			"beanstalk_jira_integration":                resourceJiraIntegration(),
 			"beanstalk_modular_webhook_integration":     resourceModularWebhookIntegration(),
 			"beanstalk_repository":                      resourceRepository(),
 			"beanstalk_repository_code_review_settings": resourceRepositoryCodeReviewSettings(),

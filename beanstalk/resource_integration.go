@@ -1,6 +1,8 @@
 package beanstalk
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -197,4 +199,14 @@ func decodeFromJSON(s *schema.Schema, value interface{}) interface{} {
 
 	// Unreachable
 	return nil
+}
+
+func hashForState(v interface{}) string {
+	switch v.(type) {
+	case string:
+		hash := sha1.Sum([]byte(v.(string)))
+		return hex.EncodeToString(hash[:])
+	default:
+		return ""
+	}
 }
