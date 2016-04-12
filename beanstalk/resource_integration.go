@@ -117,9 +117,12 @@ func (it *integrationType) prepareForJSON(d *schema.ResourceData) map[string]int
 	ret := map[string]interface{}{}
 
 	ret["type"] = it.Name
+	isNew := d.IsNewResource()
 
 	for k, s := range it.Attributes {
-		ret[k] = prepareForJSON(s, d.Get(k))
+		if isNew || d.HasChange(k) {
+			ret[k] = prepareForJSON(s, d.Get(k))
+		}
 	}
 
 	return map[string]interface{}{
