@@ -11,6 +11,7 @@ func resourceHipchatIntegration() *schema.Resource {
 			"service_access_token": &schema.Schema{
 				Type:      schema.TypeString,
 				Required:  true,
+				ForceNew:  true,
 				StateFunc: hashForState,
 			},
 			"service_room_name": &schema.Schema{

@@ -11,15 +11,18 @@ func resourceJiraIntegration() *schema.Resource {
 			"service_url": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"service_login": &schema.Schema{
 				Type:      schema.TypeString,
 				Required:  true,
+				ForceNew:  true,
 				StateFunc: hashForState,
 			},
 			"service_password": &schema.Schema{
 				Type:      schema.TypeString,
 				Required:  true,
+				ForceNew:  true,
 				StateFunc: hashForState,
 			},
 			"service_project_name": &schema.Schema{
